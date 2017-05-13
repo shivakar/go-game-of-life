@@ -2,13 +2,13 @@
 
 Conway's Game of Life<sup>1</sup> written in Go using Pixel 2D Game Library<sup>2</sup>.
 
-<sup>1</sup> https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
-<sup>2</sup> https://github.com/faiface/pixel
+* <sup>1</sup> https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life
+* <sup>2</sup> https://github.com/faiface/pixel
 
 ### Demo
 ---
 
-![Game Of Life Run](GameOfLife.gif)
+![Game Of Life Run](./GameOfLife.gif?raw=true)
 
 ### Installation
 ---

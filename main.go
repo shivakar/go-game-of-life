@@ -22,6 +22,7 @@ var (
 	windowSize = float64(golSize * scale)
 	fillFactor = 0.5
 	rng        = rand.New(rand.NewSource(time.Now().UnixNano()))
+	paused     = false
 )
 
 // GameOfLife struct to hold the simulation state
@@ -99,11 +100,36 @@ func (g *GameOfLife) Draw(imd *imdraw.IMDraw, s int) {
 	for x, r := range g.world {
 		for y, v := range r {
 			if v {
+				// nextWorld is now the previous state
+				// Draw newly alive cells in color
+				if !g.nextWorld[x][y] {
+					imd.Color(colornames.Crimson)
+				} else {
+					imd.Color(colornames.White)
+				}
 				xloc := float64(x * s)
 				yloc := float64(y * s)
 				imd.Push(pixel.V(xloc-padding, yloc-padding))
 				imd.Push(pixel.V(xloc+padding, yloc+padding))
 				imd.Rectangle(0)
+			}
+		}
+	}
+}
+
+// Reinitialize a 11x11 grid centered around the mouse click
+func (g *GameOfLife) Reinitialize(rng *rand.Rand, xloc, yloc int) {
+	padding := 5
+	for x := xloc - padding; x < xloc+padding; x++ {
+		for y := yloc - padding; y < yloc+padding; y++ {
+			if x < 0 || y < 0 || x >= g.worldSize || y >= g.worldSize {
+				continue
+			}
+			g.world[x][y] = false
+			// Wipe out this pixel's history
+			g.nextWorld[x][y] = false
+			if rng.Float64() < 0.5 {
+				g.world[x][y] = true
 			}
 		}
 	}
@@ -155,10 +181,26 @@ func run() {
 				win.MousePosition().Y() < win.Bounds().Max.Y() {
 				xloc := int(win.MousePosition().X() / float64(scale))
 				yloc := int(win.MousePosition().Y() / float64(scale))
-				g.world[xloc][yloc] = true
+				if win.Pressed(pixelgl.KeyLeftControl) ||
+					win.Pressed(pixelgl.KeyRightControl) {
+					g.Reinitialize(rng, xloc, yloc)
+
+				} else {
+					g.world[xloc][yloc] = true
+					// Delete history of the pixel
+					g.nextWorld[xloc][yloc] = false
+				}
 			}
 		}
-		g.Update()
+		if win.JustPressed(pixelgl.KeyR) {
+			g.Initialize(rng, fillFactor)
+		}
+		if win.JustReleased(pixelgl.KeySpace) {
+			paused = !paused
+		}
+		if !paused {
+			g.Update()
+		}
 		g.Draw(imd, scale)
 		imd.Draw(win)
 		win.Update()

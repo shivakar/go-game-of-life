@@ -29,11 +29,13 @@ go-game-of-life
 Features:
 
 * Left-click on a pixel to make it alive
+* Alt+Left-click on a pixel to set it to dead
 * Left-click and drag to continuously add live pixels
 * Hold `Ctrl` key when left-click (and dragging) to reinitialize 11x11 grid
   around the mouse position
 * Press `r` to reinitialize
 * Press `Space` to pause and restart
+* Press `c` to clear the entire world
 
 
 ### License

@@ -135,6 +135,23 @@ func (g *GameOfLife) Reinitialize(rng *rand.Rand, xloc, yloc int) {
 	}
 }
 
+// Clear clears the entire world
+func (g *GameOfLife) Clear() {
+	for x, r := range g.world {
+		for y := range r {
+			g.world[x][y] = false
+			g.nextWorld[x][y] = false
+		}
+	}
+}
+
+// Set sets a location in the GOL world to alive or dead
+func (g *GameOfLife) Set(xloc, yloc int, status bool) {
+	g.world[xloc][yloc] = status
+	// Delete history of the pixel
+	g.nextWorld[xloc][yloc] = false
+}
+
 // NewGOL returns a new instance of GameOfLife
 func NewGOL(ws int) *GameOfLife {
 	gol := &GameOfLife{}
@@ -184,11 +201,13 @@ func run() {
 				if win.Pressed(pixelgl.KeyLeftControl) ||
 					win.Pressed(pixelgl.KeyRightControl) {
 					g.Reinitialize(rng, xloc, yloc)
-
 				} else {
-					g.world[xloc][yloc] = true
-					// Delete history of the pixel
-					g.nextWorld[xloc][yloc] = false
+					if win.Pressed(pixelgl.KeyLeftAlt) ||
+						win.Pressed(pixelgl.KeyRightAlt) {
+						g.Set(xloc, yloc, false)
+					} else {
+						g.Set(xloc, yloc, true)
+					}
 				}
 			}
 		}
@@ -197,6 +216,9 @@ func run() {
 		}
 		if win.JustReleased(pixelgl.KeySpace) {
 			paused = !paused
+		}
+		if win.JustReleased(pixelgl.KeyC) {
+			g.Clear()
 		}
 		if !paused {
 			g.Update()
